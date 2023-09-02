@@ -140,13 +140,13 @@ def handleIndex(index, dic):
 def get_progress_bar_string(pct):
     pct = float(str(pct).strip('%'))
     p = min(max(pct, 0), 100)
-    cFull = int(p // 7)
-    cPart = int(p % 7 - 1)
-    p_str = '⬤' * cFull
+    cFull = int(p // 3)
+    cPart = int(p % 3 - 1)
+    p_str = '▓' * cFull
     if cPart >= 0:
-        p_str += ['〇', '◔', '◑', '◕', '⬤'][cPart]
-    p_str += '〇' * (12 - cFull)
-    return f"[{p_str}]"
+        p_str += ['░', '▒', '▓'][cPart]
+    p_str += '░ ' * (12 - cFull)
+    return f" {p_str} "
 
 
 def get_all_versions():
@@ -481,103 +481,6 @@ async def compare_versions(v1, v2):
             return "More Updated! Kindly Contribute in Official"
     return "Already up to date with latest version"
 
-
-async def get_stats(event, key="home"):
-    user_id = event.from_user.id
-    btns = ButtonMaker()
-    btns.ibutton('Back', f'wzmlx {user_id} stats home')
-    if key == "home":
-        btns = ButtonMaker()
-        btns.ibutton('Bot Stats', f'wzmlx {user_id} stats stbot')
-        btns.ibutton('OS Stats', f'wzmlx {user_id} stats stsys')
-        btns.ibutton('Repo Stats', f'wzmlx {user_id} stats strepo')
-        btns.ibutton('Bot Limits', f'wzmlx {user_id} stats botlimits')
-        msg = "⌬ <b><i>Bot & OS Statistics!</i></b>"
-    elif key == "stbot":
-        total, used, free, disk = disk_usage('/')
-        swap = swap_memory()
-        memory = virtual_memory()
-        try:
-            disk_io = psutil.disk_io_counters()
-            if disk_io is not None:
-                disk_read = get_readable_file_size(disk_io.read_bytes) + f" ({get_readable_time(disk_io.read_time / 1000)})"
-                disk_write = get_readable_file_size(disk_io.write_bytes) + f" ({get_readable_time(disk_io.write_time / 1000)})"
-            else:
-                disk_read = "N/A"
-                disk_write = "N/A"
-        except Exception as e:
-            disk_read = "Error"
-            disk_write = "Error"
-        msg = BotTheme('BOT_STATS',
-            bot_uptime=get_readable_time(time() - botStartTime),
-            ram_bar=get_progress_bar_string(memory.percent),
-            ram=memory.percent,
-            ram_u=get_readable_file_size(memory.used),
-            ram_f=get_readable_file_size(memory.available),
-            ram_t=get_readable_file_size(memory.total),
-            swap_bar=get_progress_bar_string(swap.percent),
-            swap=swap.percent,
-            swap_u=get_readable_file_size(swap.used),
-            swap_f=get_readable_file_size(swap.free),
-            swap_t=get_readable_file_size(swap.total),
-            disk=disk,
-            disk_bar=get_progress_bar_string(disk),
-            disk_read=disk_read,
-            disk_write=disk_write,
-            disk_t=get_readable_file_size(total),
-            disk_u=get_readable_file_size(used),
-            disk_f=get_readable_file_size(free),
-        )
-    elif key == "stsys":
-        cpuUsage = cpu_percent(interval=0.5)
-        msg = BotTheme('SYS_STATS',
-            os_uptime=get_readable_time(time() - boot_time()),
-            os_version=platform.version(),
-            os_arch=platform.platform(),
-            up_data=get_readable_file_size(net_io_counters().bytes_sent),
-            dl_data=get_readable_file_size(net_io_counters().bytes_recv),
-            pkt_sent=str(net_io_counters().packets_sent)[:-3],
-            pkt_recv=str(net_io_counters().packets_recv)[:-3],
-            tl_data=get_readable_file_size(net_io_counters().bytes_recv + net_io_counters().bytes_sent),
-            cpu=cpuUsage,
-            cpu_bar=get_progress_bar_string(cpuUsage),
-            cpu_freq=f"{cpu_freq(percpu=False).current / 1000:.2f} GHz" if cpu_freq() else "Access Denied",
-            sys_load="%, ".join(str(round((x / cpu_count() * 100), 2)) for x in getloadavg()) + "%, (1m, 5m, 15m)",
-            p_core=cpu_count(logical=False),
-            v_core=cpu_count(logical=True) - cpu_count(logical=False),
-            total_core=cpu_count(logical=True),
-            cpu_use=len(Process().cpu_affinity()),
-        )
-    elif key == "strepo":
-        last_commit, changelog = 'No Data', 'N/A'
-        if await aiopath.exists('.git'):
-            last_commit = (await cmd_exec("git log -1 --pretty='%cd ( %cr )' --date=format-local:'%d/%m/%Y'", True))[0]
-            changelog = (await cmd_exec("git log -1 --pretty=format:'<code>%s</code> <b>By</b> %an'", True))[0]
-        official_v = (await cmd_exec("curl -o latestversion.py https://raw.githubusercontent.com/weebzone/WZML-X/master/bot/version.py -s && python3 latestversion.py && rm latestversion.py", True))[0]
-        msg = BotTheme('REPO_STATS',
-            last_commit=last_commit,
-            bot_version=get_version(),
-            lat_version=official_v,
-            commit_details=changelog,
-            remarks=await compare_versions(get_version(), official_v),
-        )
-    elif key == "botlimits":
-        msg = BotTheme('BOT_LIMITS',
-                DL = ('∞' if (val := config_dict['DIRECT_LIMIT']) == '' else val),
-                TL = ('∞' if (val := config_dict['TORRENT_LIMIT']) == '' else val),
-                GL = ('∞' if (val := config_dict['GDRIVE_LIMIT']) == '' else val),
-                YL = ('∞' if (val := config_dict['YTDLP_LIMIT']) == '' else val),
-                PL = ('∞' if (val := config_dict['PLAYLIST_LIMIT']) == '' else val),
-                CL = ('∞' if (val := config_dict['CLONE_LIMIT']) == '' else val),
-                ML = ('∞' if (val := config_dict['MEGA_LIMIT']) == '' else val),
-                LL = ('∞' if (val := config_dict['LEECH_LIMIT']) == '' else val),
-                TV  = ('Disabled' if (val := config_dict['TOKEN_TIMEOUT']) == '' else get_readable_time(val)),
-                UTI = ('Disabled' if (val := config_dict['USER_TIME_INTERVAL']) == 0 else get_readable_time(val)),
-                UT = ('∞' if (val := config_dict['USER_MAX_TASKS']) == '' else val),
-                BT = ('∞' if (val := config_dict['BOT_MAX_TASKS']) == '' else val),
-        )
-    btns.ibutton('Close', f'wzmlx {user_id} close')
-    return msg, btns.build_menu(2)
 
 
 async def getdailytasks(user_id, increase_task=False, upleech=0, upmirror=0, check_mirror=False, check_leech=False):
