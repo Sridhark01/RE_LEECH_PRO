@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import platform
 from base64 import b64encode
 from datetime import datetime
@@ -137,7 +136,6 @@ def handleIndex(index, dic):
         else: break
     return index
 
-
 def get_progress_bar_string(pct):
     pct = float(str(pct).strip('%'))
     p = min(max(pct, 0), 100)
@@ -150,6 +148,7 @@ def get_progress_bar_string(pct):
     return f" {p_str} "
 
 
+
 def get_all_versions():
     try:
         result = srun(['7z', '-version'], capture_output=True, text=True)
@@ -157,17 +156,16 @@ def get_all_versions():
     except FileNotFoundError:
         vp = ''
     try:
-        result = srun([bot_cache['pkgs'][2], '-version'], capture_output=True, text=True)
+        result = srun(['ffmpeg', '-version'], capture_output=True, text=True)
         vf = result.stdout.split('\n')[0].split(' ')[2].split('ubuntu')[0]
     except FileNotFoundError:
         vf = ''
     try:
-        result = srun([bot_cache['pkgs'][3], 'version'], capture_output=True, text=True)
+        result = srun(['rclone', 'version'], capture_output=True, text=True)
         vr = result.stdout.split('\n')[0].split(' ')[1]
     except FileNotFoundError:
         vr = ''
     bot_cache['eng_versions'] = {'p7zip':vp, 'ffmpeg': vf, 'rclone': vr}
-
 
 
 class EngineStatus:
@@ -175,9 +173,9 @@ class EngineStatus:
         if not (version_cache := bot_cache.get('eng_versions')):
             get_all_versions()
             version_cache = bot_cache.get('eng_versions')
-        self.STATUS_ARIA = f"Aria2 "
+        self.STATUS_ARIA = f"Aria2"
         self.STATUS_AIOHTTP = f"AioHttp "
-        self.STATUS_GD = f"Google-API "
+        self.STATUS_GD = f"Google-API"
         self.STATUS_MEGA = f"MegaSDK "
         self.STATUS_QB = f"qBit"
         self.STATUS_TG = f"Pyrofork "
@@ -562,7 +560,6 @@ async def get_stats(event, key="home"):
         )
     btns.ibutton('Close', f'wzmlx {user_id} close')
     return msg, btns.build_menu(2)
-
 
 
 async def getdailytasks(user_id, increase_task=False, upleech=0, upmirror=0, check_mirror=False, check_leech=False):
