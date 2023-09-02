@@ -18,7 +18,7 @@ google-auth-oauthlib
 gunicorn
 git+https://github.com/zevtyardt/lk21.git
 httpx
-lxml
+lxml>=4.9.1
 motor
 mutagen
 markdown
@@ -28,7 +28,7 @@ psutil
 pybase64
 pycountry
 pymongo
-pyrogram==2.0.77
+pyrofork==2.2.10
 python-dotenv
 python-magic
 qbittorrent-api
