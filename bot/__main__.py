@@ -31,9 +31,71 @@ from .modules import authorize, clone, gd_count, gd_delete, gd_list, cancel_mirr
                      rss, shell, eval, users_settings, bot_settings, speedtest, save_msg, images, imdb, anilist, mediainfo, mydramalist, gen_pyro_sess, \
                      gd_clean, broadcast, category_select
 
-async def stats(client, message):
-    msg, btns = await get_stats(message)
-    await sendMessage(message, msg, btns, photo='IMAGES')
+async def send_repo_stats(_, query):
+    buttons = ButtonMaker()
+    if await aiopath.exists('.git'):
+        last_commit = (await cmd_exec("git log -1 --date=short --pretty=format:'%cr'", True))[0]
+        version     = (await cmd_exec("git describe --abbrev=0 --tags", True))[0]
+        change_log  = (await cmd_exec("git log -1 --pretty=format:'%s'", True))[0]
+    else:
+        last_commit = 'No UPSTREAM_REPO'
+        version     = 'N/A'
+        change_log  = 'N/A'
+
+    repo_stats = f'<b><i><u>Repo Info</u></i></b>\n\n' \
+                  f'<code>Updated   : </code> {last_commit}\n' \
+                  f'<code>Version   : </code> {version}\n' \
+                  f'<code>Changelog : </code> {change_log}'
+
+    buttons.ibutton("Bot Stats",  "show_bot_stats")
+    buttons.ibutton("Sys Stats",  "show_sys_stats")
+    buttons.ibutton("Bot Limits", "show_bot_limits")
+    buttons.ibutton("Close", "close_signal")
+    sbtns = buttons.build_menu(2)
+    await query.answer()
+    await query.message.edit_text(repo_stats, reply_markup=sbtns)
+
+
+async def send_bot_limits(_, query):
+    buttons = ButtonMaker()
+    DIR = 'Unlimited' if config_dict['DIRECT_LIMIT']    == '' else config_dict['DIRECT_LIMIT']
+    YTD = 'Unlimited' if config_dict['YTDLP_LIMIT']     == '' else config_dict['YTDLP_LIMIT']
+    GDL = 'Unlimited' if config_dict['GDRIVE_LIMIT']    == '' else config_dict['GDRIVE_LIMIT']
+    TOR = 'Unlimited' if config_dict['TORRENT_LIMIT']   == '' else config_dict['TORRENT_LIMIT']
+    CLL = 'Unlimited' if config_dict['CLONE_LIMIT']     == '' else config_dict['CLONE_LIMIT']
+    MGA = 'Unlimited' if config_dict['MEGA_LIMIT']      == '' else config_dict['MEGA_LIMIT']
+    TGL = 'Unlimited' if config_dict['LEECH_LIMIT']     == '' else config_dict['LEECH_LIMIT']
+    UMT = 'Unlimited' if config_dict['USER_MAX_TASKS']  == '' else config_dict['USER_MAX_TASKS']
+    BMT = 'Unlimited' if config_dict['QUEUE_ALL']       == '' else config_dict['QUEUE_ALL']
+
+    bot_limit = f'<b><i><u>Bot Limitations</u></i></b>\n' \
+                f'<code>Torrent   : {TOR}</code> <b>GB</b>\n' \
+                f'<code>G-Drive   : {GDL}</code> <b>GB</b>\n' \
+                f'<code>Yt-Dlp    : {YTD}</code> <b>GB</b>\n' \
+                f'<code>Direct    : {DIR}</code> <b>GB</b>\n' \
+                f'<code>Clone     : {CLL}</code> <b>GB</b>\n' \
+                f'<code>Leech     : {TGL}</code> <b>GB</b>\n' \
+                f'<code>MEGA      : {MGA}</code> <b>GB</b>\n\n' \
+                f'<code>User Tasks: {UMT}</code>\n' \
+                f'<code>Bot Tasks : {BMT}</code>'
+
+    buttons.ibutton("Bot Stats",  "show_bot_stats")
+    buttons.ibutton("Sys Stats",  "show_sys_stats")
+    buttons.ibutton("Repo Stats", "show_repo_stats")
+    buttons.ibutton("Close", "close_signal")
+    sbtns = buttons.build_menu(2)
+    await query.answer()
+    await query.message.edit_text(bot_limit, reply_markup=sbtns)
+
+
+async def send_close_signal(_, query):
+    await query.answer()
+    try:
+        await query.message.reply_to_message.delete()
+    except Exception as e:
+        LOGGER.error(e)
+    await query.message.delete()
+
 
 @new_task
 async def start(client, message):
