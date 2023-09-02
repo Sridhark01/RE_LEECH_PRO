@@ -166,14 +166,8 @@ def get_all_versions():
         vr = result.stdout.split('\n')[0].split(' ')[1]
     except FileNotFoundError:
         vr = ''
-    bot_cache['eng_versions'] = {'p7zip':vp, 'ffmpeg': vf, 'rclone': vr,
-                                    'aria': aria2.client.get_version()['version'],
-                                    'aiohttp': get_distribution('aiohttp').version,
-                                    'gapi': get_distribution('google-api-python-client').version,
-                                    'mega': MegaApi('test').getVersion(),
-                                    'qbit': get_client().app.version,
-                                    'pyro': get_distribution('pyrogram').version,
-                                    'ytdlp': get_distribution('yt-dlp').version}
+    bot_cache['eng_versions'] = {'p7zip':vp, 'ffmpeg': vf, 'rclone': vr}
+
 
 
 class EngineStatus:
@@ -181,13 +175,13 @@ class EngineStatus:
         if not (version_cache := bot_cache.get('eng_versions')):
             get_all_versions()
             version_cache = bot_cache.get('eng_versions')
-        self.STATUS_ARIA = f"Aria2 v{version_cache['aria']}"
-        self.STATUS_AIOHTTP = f"AioHttp {version_cache['aiohttp']}"
-        self.STATUS_GD = f"Google-API v{version_cache['gapi']}"
-        self.STATUS_MEGA = f"MegaSDK v{version_cache['mega']}"
-        self.STATUS_QB = f"qBit {version_cache['qbit']}"
-        self.STATUS_TG = f"Pyrogram v{version_cache['pyro']}"
-        self.STATUS_YT = f"yt-dlp v{version_cache['ytdlp']}"
+        self.STATUS_ARIA = f"Aria2 "
+        self.STATUS_AIOHTTP = f"AioHttp "
+        self.STATUS_GD = f"Google-API "
+        self.STATUS_MEGA = f"MegaSDK "
+        self.STATUS_QB = f"qBit"
+        self.STATUS_TG = f"Pyrogram "
+        self.STATUS_YT = f"yt-dlp "
         self.STATUS_EXT = "pExtract v2"
         self.STATUS_SPLIT_MERGE = f"ffmpeg v{version_cache['ffmpeg']}"
         self.STATUS_ZIP = f"p7zip v{version_cache['p7zip']}"
