@@ -137,6 +137,8 @@ def handleIndex(index, dic):
         else: break
     return index
 
+█ ✪ █▓▓▓▓▓▓▓▓▓█ ✪ █
+
 def get_progress_bar_string(pct):
     pct = float(str(pct).strip('%'))
     p = min(max(pct, 0), 100)
