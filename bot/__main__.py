@@ -7,6 +7,7 @@ from uuid import uuid4
 from base64 import b64decode
 
 from requests import get as rget
+from psutil import (boot_time, cpu_count, cpu_percent, cpu_freq, disk_usage, net_io_counters, swap_memory, virtual_memory)
 from pytz import timezone
 from bs4 import BeautifulSoup
 from signal import signal, SIGINT
@@ -19,7 +20,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from bot import bot, bot_cache, bot_name, config_dict, user_data, botStartTime, LOGGER, Interval, DATABASE_URL, QbInterval, INCOMPLETE_TASK_NOTIFIER, scheduler
 from bot.version import get_version
 from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
-from .helper.ext_utils.bot_utils import get_readable_time, cmd_exec, sync_to_async, new_task, set_commands, update_user_ldata, get_stats
+from .helper.ext_utils.bot_utils import get_readable_time, cmd_exec, sync_to_async, new_task, set_commands, update_user_ldata, get_stats, get_readable_file_size, get_progress_bar_string
 from .helper.ext_utils.db_handler import DbManger
 from .helper.telegram_helper.bot_commands import BotCommands
 from .helper.telegram_helper.message_utils import sendMessage, editMessage, editReplyMarkup, sendFile, deleteMessage, delete_all_messages
@@ -30,6 +31,83 @@ from .helper.themes import BotTheme
 from .modules import authorize, clone, gd_count, gd_delete, gd_list, cancel_mirror, mirror_leech, status, torrent_search, torrent_select, ytdlp, \
                      rss, shell, eval, users_settings, bot_settings, speedtest, save_msg, images, imdb, anilist, mediainfo, mydramalist, gen_pyro_sess, \
                      gd_clean, broadcast, category_select
+
+async def stats(_, message, edit_mode=False):
+    buttons = ButtonMaker()
+    sysTime     = get_readable_time(time() - boot_time())
+    botTime     = get_readable_time(time() - botStartTime)
+    total, used, free, disk = disk_usage('/')
+    total       = get_readable_file_size(total)
+    used        = get_readable_file_size(used)
+    free        = get_readable_file_size(free)
+    sent        = get_readable_file_size(net_io_counters().bytes_sent)
+    recv        = get_readable_file_size(net_io_counters().bytes_recv)
+    tb          = get_readable_file_size(net_io_counters().bytes_sent + net_io_counters().bytes_recv)
+    cpuUsage    = cpu_percent(interval=0.1)
+    v_core      = cpu_count(logical=True) - cpu_count(logical=False)
+    memory      = virtual_memory()
+    mem_p       = memory.percent
+    swap        = swap_memory()
+
+    bot_stats = f'<b><i><u>Bot Statistics</u></i></b>\n\n'\
+                f'<code>CPU  : {get_progress_bar_string(cpuUsage)}</code> {cpuUsage}%\n' \
+                f'<code>RAM  : {get_progress_bar_string(mem_p)}</code> {mem_p}%\n' \
+                f'<code>SWAP : {get_progress_bar_string(swap.percent)}</code> {swap.percent}%\n' \
+                f'<code>DISK : {get_progress_bar_string(disk)}</code> {disk}%\n\n' \
+                f'<code>Bot Uptime      : </code> {botTime}\n' \
+                f'<code>Uploaded        : </code> {sent}\n' \
+                f'<code>Downloaded      : </code> {recv}\n' \
+                f'<code>Total Bandwidth : </code> {tb}'
+
+    sys_stats = f'<b><i><u>System Statistics</u></i></b>\n\n'\
+                f'<b>System Uptime:</b> <code>{sysTime}</code>\n' \
+                f'<b>CPU:</b> {get_progress_bar_string(cpuUsage)}<code> {cpuUsage}%</code>\n' \
+                f'<b>CPU Total Core(s):</b> <code>{cpu_count(logical=True)}</code>\n' \
+                f'<b>P-Core(s):</b> <code>{cpu_count(logical=False)}</code> | ' \
+                f'<b>V-Core(s):</b> <code>{v_core}</code>\n' \
+                f'<b>Frequency:</b> <code>{cpu_freq(percpu=False).current / 1000:.2f} GHz</code>\n\n' \
+                f'<b>RAM:</b> {get_progress_bar_string(mem_p)}<code> {mem_p}%</code>\n' \
+                f'<b>Total:</b> <code>{get_readable_file_size(memory.total)}</code> | ' \
+                f'<b>Free:</b> <code>{get_readable_file_size(memory.available)}</code>\n\n' \
+                f'<b>SWAP:</b> {get_progress_bar_string(swap.percent)}<code> {swap.percent}%</code>\n' \
+                f'<b>Total</b> <code>{get_readable_file_size(swap.total)}</code> | ' \
+                f'<b>Free:</b> <code>{get_readable_file_size(swap.free)}</code>\n\n' \
+                f'<b>DISK:</b> {get_progress_bar_string(disk)}<code> {disk}%</code>\n' \
+                f'<b>Total:</b> <code>{total}</code> | <b>Free:</b> <code>{free}</code>'
+
+    buttons.ibutton("Sys Stats",  "show_sys_stats")
+    buttons.ibutton("Repo Stats", "show_repo_stats")
+    buttons.ibutton("Bot Limits", "show_bot_limits")
+    buttons.ibutton("Close", "close_signal")
+    sbtns = buttons.build_menu(2)
+    if not edit_mode:
+        await message.reply(bot_stats, reply_markup=sbtns)
+    return bot_stats, sys_stats
+
+
+async def send_bot_stats(_, query):
+    buttons = ButtonMaker()
+    bot_stats, _ = await stats(_, query.message, edit_mode=True)
+    buttons.ibutton("Sys Stats",  "show_sys_stats")
+    buttons.ibutton("Repo Stats", "show_repo_stats")
+    buttons.ibutton("Bot Limits", "show_bot_limits")
+    buttons.ibutton("Close",      "close_signal")
+    sbtns = buttons.build_menu(2)
+    await query.answer()
+    await query.message.edit_text(bot_stats, reply_markup=sbtns)
+
+
+async def send_sys_stats(_, query):
+    buttons = ButtonMaker()
+    _, sys_stats = await stats(_, query.message, edit_mode=True)
+    buttons.ibutton("Bot Stats",  "show_bot_stats")
+    buttons.ibutton("Repo Stats", "show_repo_stats")
+    buttons.ibutton("Bot Limits", "show_bot_limits")
+    buttons.ibutton("Close",      "close_signal")
+    sbtns = buttons.build_menu(2)
+    await query.answer()
+    await query.message.edit_text(sys_stats, reply_markup=sbtns)
+
 
 async def send_repo_stats(_, query):
     buttons = ButtonMaker()
@@ -68,7 +146,7 @@ async def send_bot_limits(_, query):
     UMT = 'Unlimited' if config_dict['USER_MAX_TASKS']  == '' else config_dict['USER_MAX_TASKS']
     BMT = 'Unlimited' if config_dict['QUEUE_ALL']       == '' else config_dict['QUEUE_ALL']
 
-    bot_limit = f'<b><i><u>Bot Limitations</u></i></b>\n' \
+    bot_limit = f'<b><i><u>Zee Bot Limitations</u></i></b>\n' \
                 f'<code>Torrent   : {TOR}</code> <b>GB</b>\n' \
                 f'<code>G-Drive   : {GDL}</code> <b>GB</b>\n' \
                 f'<code>Yt-Dlp    : {YTD}</code> <b>GB</b>\n' \
@@ -95,6 +173,7 @@ async def send_close_signal(_, query):
     except Exception as e:
         LOGGER.error(e)
     await query.message.delete()
+
 
 
 @new_task
