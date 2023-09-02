@@ -510,6 +510,24 @@ async def get_stats(event, key="home"):
             disk_u=get_readable_file_size(used),
             disk_f=get_readable_file_size(free),
         )
+
+        try:
+            disk_read = (
+                get_readable_file_size(disk_io_counters().read_bytes)
+                + f" ({get_readable_time(disk_io_counters().read_time / 1000)})"
+            )
+            disk_write = (
+                get_readable_file_size(disk_io_counters().write_bytes)
+                + f" ({get_readable_time(disk_io_counters().write_time / 1000)})"
+            )
+        except AttributeError:
+            # Handle the case where disk I/O counters are not available
+            disk_read = "N/A"
+            disk_write = "N/A"
+            
+        msg['disk_read'] = disk_read
+        msg['disk_write'] = disk_write
+        
     elif key == "stsys":
         cpuUsage = cpu_percent(interval=0.5)
         msg = BotTheme('SYS_STATS',
