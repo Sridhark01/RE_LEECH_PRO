@@ -180,7 +180,7 @@ class EngineStatus:
         self.STATUS_GD = f"Google-API "
         self.STATUS_MEGA = f"MegaSDK "
         self.STATUS_QB = f"qBit"
-        self.STATUS_TG = f"Pyrogram "
+        self.STATUS_TG = f"Pyrofork "
         self.STATUS_YT = f"yt-dlp "
         self.STATUS_EXT = "pExtract v2"
         self.STATUS_SPLIT_MERGE = f"ffmpeg v{version_cache['ffmpeg']}"
