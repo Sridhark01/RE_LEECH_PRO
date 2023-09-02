@@ -18,8 +18,9 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from bot import bot, bot_name, config_dict, user_data, botStartTime, LOGGER, Interval, DATABASE_URL, QbInterval, INCOMPLETE_TASK_NOTIFIER, scheduler
 from bot.version import get_version
+from .helper.ext_utils.bot_utils import get_stats
 from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
-from .helper.ext_utils.bot_utils import get_readable_time, cmd_exec, sync_to_async, new_task, set_commands, update_user_ldata, get_stats
+from .helper.ext_utils.bot_utils import get_readable_time, cmd_exec, sync_to_async, new_task, set_commands, update_user_ldata
 from .helper.ext_utils.db_handler import DbManger
 from .helper.telegram_helper.bot_commands import BotCommands
 from .helper.telegram_helper.message_utils import sendMessage, editMessage, editReplyMarkup, sendFile, deleteMessage, delete_all_messages
@@ -35,7 +36,6 @@ from .modules import authorize, clone, gd_count, gd_delete, gd_list, cancel_mirr
 async def stats(client, message):
     msg, btns = await get_stats(message)
     await sendMessage(message, msg, btns, photo='IMAGES')
-
 
 
 @new_task
