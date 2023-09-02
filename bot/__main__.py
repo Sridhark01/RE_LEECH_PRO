@@ -7,7 +7,6 @@ from uuid import uuid4
 from base64 import b64decode
 
 from requests import get as rget
-from psutil import (boot_time, cpu_count, cpu_percent, cpu_freq, disk_usage, net_io_counters, swap_memory, virtual_memory)
 from pytz import timezone
 from bs4 import BeautifulSoup
 from signal import signal, SIGINT
@@ -17,10 +16,10 @@ from pyrogram.handlers import MessageHandler, CallbackQueryHandler
 from pyrogram.filters import command, private, regex
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from bot import bot, bot_cache, bot_name, config_dict, user_data, botStartTime, LOGGER, Interval, DATABASE_URL, QbInterval, INCOMPLETE_TASK_NOTIFIER, scheduler
+from bot import bot, bot_name, config_dict, user_data, botStartTime, LOGGER, Interval, DATABASE_URL, QbInterval, INCOMPLETE_TASK_NOTIFIER, scheduler
 from bot.version import get_version
 from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
-from .helper.ext_utils.bot_utils import get_readable_time, cmd_exec, sync_to_async, new_task, set_commands, update_user_ldata, get_readable_file_size, get_progress_bar_string, get_stats
+from .helper.ext_utils.bot_utils import get_readable_time, cmd_exec, sync_to_async, new_task, set_commands, update_user_ldata, get_stats
 from .helper.ext_utils.db_handler import DbManger
 from .helper.telegram_helper.bot_commands import BotCommands
 from .helper.telegram_helper.message_utils import sendMessage, editMessage, editReplyMarkup, sendFile, deleteMessage, delete_all_messages
@@ -31,6 +30,7 @@ from .helper.themes import BotTheme
 from .modules import authorize, clone, gd_count, gd_delete, gd_list, cancel_mirror, mirror_leech, status, torrent_search, torrent_select, ytdlp, \
                      rss, shell, eval, users_settings, bot_settings, speedtest, save_msg, images, imdb, anilist, mediainfo, mydramalist, gen_pyro_sess, \
                      gd_clean, broadcast, category_select
+
 
 async def stats(client, message):
     msg, btns = await get_stats(message)
