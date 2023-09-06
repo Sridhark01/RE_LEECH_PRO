@@ -136,17 +136,15 @@ def handleIndex(index, dic):
         else: break
     return index
 
-def get_progress_bar_string(pct):
-    pct = float(str(pct).strip('%'))
-    p = min(max(pct, 0), 100)
-    cFull = int(p // 3)
-    cPart = int(p % 3 - 1)
-    p_str = '▓' * cFull
-    if cPart >= 0:
-        p_str += ['░', '▒', '▓'][cPart]
-    p_str += '░ ' * (8 - cFull)
-    return f" {p_str} "
 
+def get_progress_bar_string(pct):
+    if isinstance(pct, str):
+        pct = float(pct.strip('%'))
+    p = min(max(pct, 0), 100)
+    cFull = int(p // 10)
+    p_str = '█' * cFull
+    p_str += ['░', '▒'] * (10 - cFull)
+    return f"{p_str}"
 
 
 def get_all_versions():
