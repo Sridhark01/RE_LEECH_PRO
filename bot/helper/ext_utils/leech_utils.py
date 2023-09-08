@@ -121,7 +121,7 @@ async def take_ss(video_file, duration):
     if await status.wait() != 0 or not await aiopath.exists(des_dir):
         err = (await status.stderr.read()).decode().strip()
         LOGGER.error(
-            f'Error while extracting thumbnail. Name: {video_file} stderr: {err}')
+            f'Error while extracting thumbnail from video. Name: {video_file} stderr: {err}')
         return None
     return des_dir
 
