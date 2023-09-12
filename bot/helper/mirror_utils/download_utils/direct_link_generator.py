@@ -538,10 +538,9 @@ def uploadee(url: str) -> str:
             f"ERROR: Failed to acquire download URL from upload.ee for : {url}")
 
 
-def terabox(url) -> str:
+def terabox(url):
     if not path.isfile('terabox.txt'):
         raise DirectDownloadLinkException("ERROR: terabox.txt not found")
-    session = create_scraper()
     try:
         jar = MozillaCookieJar('terabox.txt')
         jar.load()
@@ -550,31 +549,17 @@ def terabox(url) -> str:
     cookies = {}
     for cookie in jar:
         cookies[cookie.name] = cookie.value
-    session = Session()
-    try:
-       _res = session.get(url, cookies=cookies)
-    except Exception as e:
-        session.close()
-        raise DirectDownloadLinkException(f'ERROR: {e.__class__.__name__}')
-
-      if jsToken := findall(r'window\.jsToken.*%22(.*)%22', _res.text):
-        jsToken = jsToken[0]
-    else:
-        session.close()
-        raise DirectDownloadLinkException('ERROR: jsToken not found!.')
-    shortUrl = _res.url.split('?surl=')[-1]
-
     details = {'contents':[], 'title': '', 'total_size': 0}
     details["header"] = ' '.join(f'{key}: {value}' for key, value in cookies.items())
 
-    def __fetch_links(folderPath=''):
+    def __fetch_links(session, dir_='', folderPath=''):
         params = {
             'app_id': '250528',
             'jsToken': jsToken,
             'shorturl': shortUrl
             }
-        if folderPath:
-            params['dir'] = folderPath
+        if dir_:
+            params['dir'] = dir_
         else:
             params['root'] = '1'
         try:
@@ -587,25 +572,29 @@ def terabox(url) -> str:
             else:
                 raise DirectDownloadLinkException('ERROR: Something went wrong!')
 
-        if not details['title']:
-            if "title" in _json:
-                title = _json["title"].split("/")
-                title = title[-1]
-            else:
-                title = shortUrl
-            details['title'] = title
         if "list" not in _json:
             return
         contents = _json["list"]
         for content in contents:
             if content['isdir'] in ['1', 1]:
-                __fetch_links(content['path'])
+                if not folderPath:
+                    if not details['title']:
+                        details['title'] = content['server_filename']
+                        newFolderPath = path.join(details['title'])
+                    else:
+                        newFolderPath = path.join(details['title'], content['server_filename'])
+                else:
+                    newFolderPath = path.join(folderPath, content['server_filename'])
+                __fetch_links(session, content['path'], newFolderPath)
             else:
-                filepaths = content["path"].split('/')
+                if not folderPath:
+                    if not details['title']:
+                        details['title'] = content['server_filename']
+                    folderPath = details['title']
                 item = {
                     'url': content['dlink'],
                     'filename': content['server_filename'],
-                    'path' : path.join(*filepaths).rsplit("/", 1)[0],
+                    'path' : path.join(folderPath),
                 }
                 if 'size' in content:
                     size = content["size"]
@@ -614,14 +603,25 @@ def terabox(url) -> str:
                     details['total_size'] += size
                 details['contents'].append(item)
 
-    try:
-        __fetch_links()
-    except Exception as e:
-        session.close()
-        raise DirectDownloadLinkException(e)
-    session.close()
+    with Session() as session:
+        try:
+            _res = session.get(url, cookies=cookies)
+        except Exception as e:
+            raise DirectDownloadLinkException(f'ERROR: {e.__class__.__name__}')
+        if jsToken := findall(r'window\.jsToken.*%22(.*)%22', _res.text):
+            jsToken = jsToken[0]
+        else:
+            raise DirectDownloadLinkException('ERROR: jsToken not found!.')
+        shortUrl = parse_qs(urlparse(_res.url).query).get('surl')
+        if not shortUrl:
+            raise DirectDownloadLinkException("ERROR: Could not find surl")
+        try:
+            __fetch_links(session)
+        except Exception as e:
+            raise DirectDownloadLinkException(e)
+    if len(details['contents']) == 1:
+        return details['contents'][0]['url']
     return details
-
 
 def gofile(url):
     try:
