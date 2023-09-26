@@ -493,6 +493,7 @@ async def get_stats(event, key="home"):
     user_id = event.from_user.id
     btns = ButtonMaker()
     btns.ibutton('Back', f'wzmlx {user_id} stats home')
+    
     if key == "home":
         btns = ButtonMaker()
         btns.ibutton('Bot Stats', f'wzmlx {user_id} stats stbot')
@@ -500,10 +501,20 @@ async def get_stats(event, key="home"):
         btns.ibutton('Repo Stats', f'wzmlx {user_id} stats strepo')
         btns.ibutton('Bot Limits', f'wzmlx {user_id} stats botlimits')
         msg = "⌬ <b><i>Bot & OS Statistics!</i></b>"
+    
     elif key == "stbot":
         total, used, free, disk = disk_usage('/')
         swap = swap_memory()
         memory = virtual_memory()
+        
+        try:
+            disk_io = disk_io_counters()
+            disk_read = get_readable_file_size(disk_io.read_bytes) + f" ({get_readable_time(disk_io.read_time / 1000)})"
+            disk_write = get_readable_file_size(disk_io.write_bytes) + f" ({get_readable_time(disk_io.write_time / 1000)})"
+        except Exception as e:
+            disk_read = "N/A"
+            disk_write = "N/A"
+        
         msg = BotTheme('BOT_STATS',
             bot_uptime=get_readable_time(time() - botStartTime),
             ram_bar=get_progress_bar_string(memory.percent),
@@ -518,12 +529,13 @@ async def get_stats(event, key="home"):
             swap_t=get_readable_file_size(swap.total),
             disk=disk,
             disk_bar=get_progress_bar_string(disk),
-            disk_read=get_readable_file_size(disk_io_counters().read_bytes) + f" ({get_readable_time(disk_io_counters().read_time / 1000)})",
-            disk_write=get_readable_file_size(disk_io_counters().write_bytes) + f" ({get_readable_time(disk_io_counters().write_time / 1000)})",
+            disk_read=disk_read,
+            disk_write=disk_write,
             disk_t=get_readable_file_size(total),
             disk_u=get_readable_file_size(used),
             disk_f=get_readable_file_size(free),
         )
+
         
     elif key == "stsys":
         cpuUsage = cpu_percent(interval=0.5)
