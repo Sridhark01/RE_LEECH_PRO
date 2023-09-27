@@ -54,6 +54,7 @@ class MirrorStatus:
         STATUS_SPLITTING = "✂️ Split"
         STATUS_CHECKING = "📝 CheckUp"
         STATUS_SEEDING = "🌧 Seed"
+        STATUS_UPLOADDDL   = "Upload DDL"
         STATUS_CONVERTING = "↔️ Convert"
 
 class setInterval:
