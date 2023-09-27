@@ -4,9 +4,9 @@ class WZMLStyle:
     # async def start(client, message) ---> __main__.py
     ST_BN1_NAME = 'Owner'
     ST_BN1_URL = 'https://t.me/maharaja_91'
-    ST_BN2_NAME = '😘 Use Me'
+    ST_BN2_NAME = '✧ ʀᴇ ✗ ʟɪɴkᴢᴢ ✧'
     ST_BN2_URL = 'https://t.me/re_linkzz'
-    ST_MSG = '''<b>✨ Mirror & Leech</b>\n\nℹ️ I Can Upload Files, Links, Torrents, etc. to Telegram, Google Drive, DDL Servers and Rclone Supported Sites!\n\n'''
+    ST_MSG = '''<b>ʏᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀᴜᴛʜᴏʀɪᴢᴇᴅ ᴜꜱᴇʀ !\n\n🦊 ᴍᴀɴᴛᴀɪɴᴇᴅ ʙʏ : <a href='https://t.me/maharaja_91'>ʀᴀᴊᴀ ᠰ TɢX</a></b>'''
     ST_BOTPM = '''<b>🕵️ Bot PM Initiated Successfully!\n\nℹ️ I will send all your files and links here.</b>'''
     ST_UNAUTH = '''<b>⚠️ Access Denied!</b>'''
     PIC = 'https://graph.org/file/4e04d7306ebc06d5d12e5.jpg'
