@@ -1,15 +1,24 @@
 # RE_LEECH_PRO
 ---
 -  Clone this repo:
- ```
+```
 git clone https://github.com/Sridhark01/RE_LEECH_PRO RE_LEECH_PRO/ && cd RE_LEECH_PRO
 ```
  
-- Switch to deploy branch: ```git checkout dep```
+- Switch to deploy branch:
+```
+git checkout dep
+```
 
-- Login to heroku: ```heroku login```
+- Login to heroku:
+```
+heroku login
+```
 
-- Create heroku app: ```heroku create --region us YOUR-APP-NAME```
+- Create heroku app:
+```
+heroku create --region us YOUR-APP-NAME
+```
 
 - Add remote: ```heroku git:remote -a YOUR-APP-NAME```
 
