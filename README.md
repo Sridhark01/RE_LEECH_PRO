@@ -1,7 +1,9 @@
 # RE_LEECH_PRO
 ---
 -  Clone this repo:
- ``` git clone https://github.com/Sridhark01/RE_LEECH_PRO RE_LEECH_PRO/ && cd RE_LEECH_PRO  ```
+ ```
+git clone https://github.com/Sridhark01/RE_LEECH_PRO RE_LEECH_PRO/ && cd RE_LEECH_PRO
+```
  
 - Switch to deploy branch: ```git checkout dep```
 
