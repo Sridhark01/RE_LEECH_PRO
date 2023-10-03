@@ -27,26 +27,28 @@ This is a Telegram Bot written in Python for mirroring files on the Internet to 
 ## Bot commands to be set in [@BotFather](https://t.me/BotFather)
 
 ```
-mirror - or /m Mirror
-qbmirror - or /qbm Mirror torrent using qBittorrent
-leech - or /l Leech
-qbleech - or /qbl Leech torrent using qBittorrent
+mirror - or /m1 Mirror
+qbmirror - or /qm1 Mirror torrent using qBittorrent
+leech - or /l1 Leech
+qbleech - or /ql1 Leech torrent using qBittorrent
 clone - Copy file/folder to Drive
 count - Count file/folder from Drive
-ytdl - or /yt Mirror yt-dlp supported link
-ytdlleech - or /ytl Leech through yt-dlp supported link
-usetting - User settings
-bsettings - Bot settings
-status - Get Mirror Status message
-sall - Get all bot mirror status
+ytdl - or /y1 Mirror yt-dlp supported link
+ytdlleech - or /yl1 Leech through yt-dlp supported link
+usetting - /us1 User settings
+bsetting - Bot settings
+status - /s1 Get Mirror Status message
 btsel - Select files from torrent
 rss - Rss menu
 list - Search files in Drive
 search - Search for torrents with API
 cancel - Cancel a task
 cancelall - Cancel all tasks
-stats - Bot Usage Stats
-s - All bot usage stats
-ping - or /p to Ping the Bot
+del - Delete file/folder from Drive
+log - Get the Bot Log
+shell - Run commands in Shell
+restart - Restart the Bot
+stats - /st1 Bot Usage Stats
+ping - /p1 Ping the Bot
 help - All cmds with description
 ```
